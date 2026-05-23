@@ -1,16 +1,17 @@
 ; We STRUCing 2026-05-23 16:38:46
 InputBuffer STRUC 
-    MaxLen DB 71
+    MaxLen DB 69
     Len DB 0
-    ArrayChar DB 71 DUP('$') 
+    ArrayChar DB 69 DUP('$') 
 InputBuffer ENDS
 
 DataSg SEGMENT PARA PUBLIC 'DATA'
     StrTitle DB "White Astroemeria Text Aligner [Beta] Author: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
-    StrInstrucction DB "You will enter a maximum of 70 characters, otherwise things break",10,"$" ; Creo que muy poco :c 2026-05-23 16:13:00
+    StrInstrucction DB "You will enter a maximum of 68 characters, otherwise things break",10,"$" ; Creo que muy poco :c 2026-05-23 16:13:00
     ArrayInput InputBuffer 5 DUP(<>) ; Un Array 2026-05-23 17:08:58
-    StrLabel DB 10,"String $" ; Una label para los strings a inputear 2026-05-23 17:25:53
+    StrLabel DB 10,10,"String $" ; Una label para los strings a inputear 2026-05-23 17:25:53
     StrLable DB " : $"; Al proposito hago las cosas confusas yo 2026-05-23 17:26:27
+    StrLiableGui DB 0B3h,"  F7: Align left   ",0B3h," F8: Align center  ",0B3h,"  F9: Align right  ",0B3h,"  F10: Exit       ",0B3h,"$"
 DataSg ENDS
 
 ; Deberia hacerlo extra complicado y capturar input por input :) creo que mucho seria eso ya 2026-05-23 16:14:10
@@ -27,6 +28,16 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         MOV AH, 09h;
         LEA DX, str
         INT 21h
+    ENDM
+
+    PrintChar MACRO charac, times
+    LOCAL PCLoop
+    MOV AL, charac
+    MOV CX, times
+    PCLoop:
+        INT 10h
+    Loop PCLoop
+
     ENDM
 
     Start: ; Parece un entry point, no? 2026-05-23 16:03:06
@@ -63,6 +74,133 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         ADD BX, 73 ; Cositas de arrays 2026-05-23 17:37:57
         ; Sabias que en c array[12] y 12[array] hacen exactamente lo mismo? 2026-05-23 17:39:01
     Loop LeLoop
+
+    MOV AH, 02h ; Preparamos nuestra GUI super interactiva 2026-05-23 17:52:19
+    MOV DL, 10
+    INT 21h
+    INT 21h
+
+    ; We teletypin 2026-05-23 17:54:51
+    ; Lo mejor de usar linux es bootear directamente a TTY1, nadie que me agarre la laptop sabrá que hacer 2026-05-23 17:55:34
+
+    MOV AH, 0Eh ; Que linda interrupt 2026-05-23 17:56:22
+    MOV AL, 0DAh
+    INT 10h
+
+    PrintChar 0C4h 78
+
+    MOV AL, 0BFh
+    INT 10h
+
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 78
+
+    MOV AL, 0B3h
+    INT 10h
+
+    MOV AL, 0C3h
+    INT 10h
+
+    PrintChar 0C4h 78
+
+    MOV AL, 0B4h
+    INT 10h
+
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 78
+
+    MOV AL, 0B3h
+    INT 10h
+
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 78
+
+    MOV AL, 0B3h
+    INT 10h
+
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 78
+
+    MOV AL, 0B3h
+    INT 10h
+
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 78
+
+    MOV AL, 0B3h
+    INT 10h
+
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 78
+
+    MOV AL, 0B3h
+    INT 10h
+
+    MOV AL, 0C3h
+    INT 10h
+
+    PrintChar 0C4h 19
+
+    MOV AL, 0C2h
+    INT 10h
+
+    PrintChar 0C4h 19
+
+    MOV AL, 0C2h
+    INT 10h
+
+    PrintChar 0C4h 19
+    
+    MOV AL, 0C2h
+    INT 10h
+
+    PrintChar 0C4h 18
+
+    MOV AL, 0B4h
+    INT 10h
+
+
+
+    MOV AH, 09h
+    LEA DX, StrLiableGui
+    INT 21h
+
+    MOV AH, 0Eh 
+
+    MOV AL, 0C0h
+    INT 10h
+
+    PrintChar 0C4h 19
+
+    MOV AL, 0C1h
+    INT 10h
+
+    PrintChar 0C4h 19
+
+    MOV AL, 0C1h
+    INT 10h
+
+    PrintChar 0C4h 19
+    
+    MOV AL, 0C1h
+    INT 10h
+
+    PrintChar 0C4h 18
+
+    MOV AL, 0D9h
+    INT 10h
 
 
     MOV AH, 4Ch ; Salimos del proceso, no queremos un loop eterno que crashee MS-DOS 2026-05-23 16:10:14
