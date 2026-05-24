@@ -15,6 +15,10 @@ DataSg SEGMENT PARA PUBLIC 'DATA'
     StrOption2 DB " F8: Align center  $"
     StrOption3 DB "  F9: Align right  $"
     StrOption4 DB "    F10: Exit     $" ; Cambios, muchos cambios 2026-05-23 20:02:37
+
+    StrOpt1Title DB "Alignment to the left"
+    StrOpt2Title DB "Alignment to the center"
+    StrOpt3Title DB "Alignment to the right" 
 DataSg ENDS
 
 ; Deberia hacerlo extra complicado y capturar input por input :) creo que mucho seria eso ya 2026-05-23 16:14:10
@@ -94,8 +98,110 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         POP AX
     ENDM ; Un printf, interesante. Aunque no funciona nada como el printf de C 2026-05-23 21:11:56
 
-    
+    CPrintDX MACRO col, y
+    LOCAL Loopilo
+        PUSH BX
+        PUSH DX
 
+        MOV AH, 03h 
+        MOV BH, 00h
+        INT 10h ; Recogemos la ubicacion del cursor 2026-05-23 20:10:15
+        POP AX
+        POP BX
+        PUSH DX ; Guardamos la ubicacion del cursor 2026-05-23 20:10:16
+        PUSH AX
+        PUSH BX
+                ; Si, estoy copiando el codigo anterior 2026-05-23 21:52:49
+
+        MOV AH, 02h
+        MOV BH, 00h
+        MOV DH, y
+        MOV DL, 1
+        INT 10h ; Movemos el cursor 2026-05-23 20:16:34
+                ; Pero al inicio de la linea 2026-05-23 21:53:58
+
+        MOV AH, 09h
+        MOV AL, 20h
+        MOV BH, 00h
+        MOV BL, col
+        MOV CX, 78
+        INT 10h ; Aplicamos el atributo de color a utilizar 2026-05-23 20:18:23
+                ; A toda la fila 2026-05-23 21:55:07
+        
+        
+
+        POP BX
+        MOV CX, 78
+        SUB CX, BX
+        SHR CL, 1; Adivinen que hace, los reto 2026-05-23 21:57:20
+        
+        MOV AH, 0Eh
+        MOV AL, 20h
+        Loopilo:
+            INT 10h
+        Loop Loopilo
+
+        POP DX
+        MOV AH, 09h
+        INT 21h
+
+        POP DX
+        MOV AH, 02h
+        MOV BH, 00h
+        INT 10h
+    ENDM
+
+    RPrintDX MACRO col, y
+    LOCAL Loopilo
+        PUSH BX
+        PUSH DX
+
+        MOV AH, 03h 
+        MOV BH, 00h
+        INT 10h ; Recogemos la ubicacion del cursor 2026-05-23 20:10:15
+        POP AX
+        POP BX
+        PUSH DX ; Guardamos la ubicacion del cursor 2026-05-23 20:10:16
+        PUSH AX
+        PUSH BX
+                ; Si, estoy copiando el codigo anterior 2026-05-23 21:52:49
+
+        MOV AH, 02h
+        MOV BH, 00h
+        MOV DH, y
+        MOV DL, 1
+        INT 10h ; Movemos el cursor 2026-05-23 20:16:34
+                ; Pero al inicio de la linea 2026-05-23 21:53:58
+
+        MOV AH, 09h
+        MOV AL, 20h
+        MOV BH, 00h
+        MOV BL, col
+        MOV CX, 78
+        INT 10h ; Aplicamos el atributo de color a utilizar 2026-05-23 20:18:23
+                ; A toda la fila 2026-05-23 21:55:07
+        
+        
+
+        POP BX
+        MOV CX, 78
+        SUB CX, BX ;Cambiito 2026-05-23 22:40:07
+        
+        MOV AH, 0Eh
+        MOV AL, 20h
+        Loopilo:
+            INT 10h
+        Loop Loopilo
+
+        POP DX
+        MOV AH, 09h
+        INT 21h
+
+        POP DX
+        MOV AH, 02h
+        MOV BH, 00h
+        INT 10h
+    ENDM
 
     Start: ; Parece un entry point, no? 2026-05-23 16:03:06
 
@@ -291,8 +397,39 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
     Printf StrOption3, 0Eh, 41, 23
     Printf StrOption4, 0Ch, 61, 23 ; Colorcitos 2026-05-23 21:46:50
 
-    MOV AH, 00h    ; Función: Leer pulsación de tecla
+    MainLoop:
+
+    MOV AH, 00h
     INT 16h
+
+    CMP AL, 00h
+    JE MainLoop
+
+    CMP AH, 41h
+    JE RenderLeft
+
+    CMP AH, 42h
+    JE RenderCenter
+
+    CMP AH, 43h
+    JE RenderRight
+
+    CMP AH, 44h
+    JE Exit
+
+    JMP MainLoop
+
+    Exit:
+
+    RenderLeft:
+    JMP MainLoop
+
+    RenderCenter:
+    JMP MainLoop
+
+    RenderRight:
+    JMP MainLoop
+
 
 
     MOV AH, 4Ch ; Salimos del proceso, no queremos un loop eterno que crashee MS-DOS 2026-05-23 16:10:14
