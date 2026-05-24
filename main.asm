@@ -1,13 +1,13 @@
 ; We STRUCing 2026-05-23 16:38:46
 InputBuffer STRUC 
-    MaxLen DB 69
+    MaxLen DB 68
     Len DB 0
     ArrayChar DB 69 DUP('$') 
 InputBuffer ENDS
 
 DataSg SEGMENT PARA PUBLIC 'DATA'
-    StrTitle DB "White Astroemeria Text Aligner [Beta] Author: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
-    StrInstrucction DB "You will enter a maximum of 68 characters, otherwise things break",10,"$" ; Creo que muy poco :c 2026-05-23 16:13:00
+    StrTitle DB "White Astroemeria Text Aligner [v1.3] By: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
+    StrInstrucction DB "You will enter a maximum of 67 characters, otherwise things break",10,"$" ; Creo que muy poco :c 2026-05-23 16:13:00
     ArrayInput InputBuffer 5 DUP(<>) ; Un Array 2026-05-23 17:08:58
     StrLabel DB 10,10,"String $" ; Una label para los strings a inputear 2026-05-23 17:25:53
     StrLable DB " : $"; Al proposito hago las cosas confusas yo 2026-05-23 17:26:27
@@ -16,9 +16,9 @@ DataSg SEGMENT PARA PUBLIC 'DATA'
     StrOption3 DB "  F9: Align right  $"
     StrOption4 DB "    F10: Exit     $" ; Cambios, muchos cambios 2026-05-23 20:02:37
 
-    StrOpt1Title DB "Alignment to the left"
-    StrOpt2Title DB "Alignment to the center"
-    StrOpt3Title DB "Alignment to the right" 
+    StrOpt1Title DB "Left alignment$"
+    StrOpt2Title DB "Center Alignment$"
+    StrOpt3Title DB "Right Alignment$" 
 DataSg ENDS
 
 ; Deberia hacerlo extra complicado y capturar input por input :) creo que mucho seria eso ya 2026-05-23 16:14:10
@@ -98,8 +98,9 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         POP AX
     ENDM ; Un printf, interesante. Aunque no funciona nada como el printf de C 2026-05-23 21:11:56
 
-    CPrintDX MACRO col, y
+    CPrintDX MACRO col, y ; Refactoring a un PROC
     LOCAL Loopilo
+        PUSH DX
         PUSH BX
         PUSH DX
 
@@ -149,10 +150,13 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         MOV AH, 02h
         MOV BH, 00h
         INT 10h
+        POP DX
     ENDM
 
     RPrintDX MACRO col, y
     LOCAL Loopilo
+    LOCAL AlignLSkip
+        PUSH DX
         PUSH BX
         PUSH DX
 
@@ -184,6 +188,8 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         
 
         POP BX
+        CMP BX, 78
+        JE AlignLSkip ; Me parece que ahi hay un overflow 2026-05-24 10:33:43
         MOV CX, 78
         SUB CX, BX ;Cambiito 2026-05-23 22:40:07
         
@@ -193,6 +199,7 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
             INT 10h
         Loop Loopilo
 
+        AlignLSkip:
         POP DX
         MOV AH, 09h
         INT 21h
@@ -201,6 +208,7 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         MOV AH, 02h
         MOV BH, 00h
         INT 10h
+        POP DX
     ENDM
 
     Start: ; Parece un entry point, no? 2026-05-23 16:03:06
@@ -211,6 +219,18 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
     MOV AX, StackSg ; Lo mismo para SS, no se si se utilizará 2026-05-23 16:05:13
     MOV SS, AX
     MOV SP, 128 
+
+    MOV AX, 0600h
+    MOV BH, 07h
+    MOV CX, 0000h
+    MOV DX, 184Fh
+    INT 10h ; Hacemos el os.system("cls" if os.name=="nt" else "clear")... espera no es python esto? 2026-05-24 10:40:22
+
+    MOV AH, 02h
+    MOV BH, 00h
+    MOV DH, 0
+    MOV DL, 0
+    INT 10h ; Posicionamos el cursor en la puntita de todo, todo para una tui decente 2026-05-24 10:42:25
 
     ; Imprimimos el titulo, muy importante para el desarrollo del programa 2026-05-23 16:05:59
     Print StrTitle 
@@ -234,7 +254,7 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         MOV DX, BX
         INT 21h ; Usamos buffered input para captar datos de stdin 2026-05-23 17:37:39
 
-        ADD BX, 73 ; Cositas de arrays 2026-05-23 17:37:57
+        ADD BX, 71 ; Cositas de arrays 2026-05-23 17:37:57
         ; Sabias que en c array[12] y 12[array] hacen exactamente lo mismo? 2026-05-23 17:39:01
     Loop LeLoop
 
@@ -389,7 +409,8 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
 ; Imprime el cuadrito re bacano que sirve de gui 2026-05-23 19:56:38
 
     MOV AH, 01h
-    MOV CH, 10h
+    MOV CH, 20h
+    MOV CL, 00h
     INT 10h
     
     Printf StrOption1, 09h, 1, 23
@@ -403,38 +424,177 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
     INT 16h
 
     CMP AL, 00h
-    JE MainLoop
+    JNE MainLoop
 
-    CMP AH, 41h
-    JE RenderLeft
-
-    CMP AH, 42h
-    JE RenderCenter
-
+    CMP AH, 65
+    JNE ElseLeft
+    CALL RenderLeft
+    ElseLeft:
+    
+    CMP AH, 66
+    JNE ElseCenter
+    CALL RenderCenter
+    ElseCenter:
+    
     CMP AH, 43h
-    JE RenderRight
+    JNE ElseRight
+    CALL RenderRight
+    ElseRight:
 
-    CMP AH, 44h
-    JE Exit
+    CMP AH, 68
+    JNE MainLoop
+        MOV AH, 4Ch
+        MOV AL, 00h
+        INT 21h
 
     JMP MainLoop
+
+
+
+
+
 
     Exit:
 
-    RenderLeft:
-    JMP MainLoop
-
-    RenderCenter:
-    JMP MainLoop
-
-    RenderRight:
-    JMP MainLoop
-
-
+    MOV AH, 01h
+    MOV CH, 06h
+    MOV CL, 07h
+    INT 10h ; Restauramos el cursor, no somos psicopatas 2026-05-24 10:37:37
 
     MOV AH, 4Ch ; Salimos del proceso, no queremos un loop eterno que crashee MS-DOS 2026-05-23 16:10:14
     MOV AL, 00h ; 0 porque 0 errores 😎 2026-05-23 16:10:12
     INT 21h
+
+
+
+;Cambio de planes, usamos procs
+RenderLeft PROC NEAR
+    LEA DX, StrOpt1Title
+    MOV BX, 78
+
+    RPrintDX 09h, 15 
+
+    LEA DX, ArrayInput
+    ADD DX, 2
+    MOV BX, 78
+    RPrintDX 07h, 17 ; Un poco de fuerza bruta 2026-05-24 09:42:13
+    ADD DX, 71
+    MOV BX, 78
+    RPrintDX 07h, 18 
+    ADD DX, 71
+    MOV BX, 78
+    RPrintDX 07h, 19 
+    ADD DX, 71
+    MOV BX, 78
+    RPrintDX 07h, 20
+    ADD DX, 71
+    MOV BX, 78
+    RPrintDX 07h, 21 
+    RET
+RenderLeft ENDP
+
+
+RenderCenter PROC NEAR
+
+    LEA DX, StrOpt2Title
+    MOV BX, 16
+    CPrintDX 0Ah, 15
+
+    LEA BX, ArrayInput
+    MOV DL, [BX+1]
+    MOV DH, 00h
+    XCHG DX, BX
+    ADD DX, 2
+    CPrintDX 07h, 17
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    CPrintDX 07h, 18
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    CPrintDX 07h, 19
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    CPrintDX 07h, 20
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    CPrintDX 07h, 21
+
+    RET
+RenderCenter ENDP
+
+
+RenderRight PROC NEAR
+
+
+    LEA DX, StrOpt3Title
+    MOV BX, 16
+    RPrintDX 0Eh, 15
+
+    LEA BX, ArrayInput
+    MOV DL, [BX+1]
+    MOV DH, 00h
+    XCHG DX, BX
+    ADD DX, 2
+    RPrintDX 07h, 17
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    RPrintDX 07h, 18
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    RPrintDX 07h, 19
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    RPrintDX 07h, 20
+
+    ADD DX, 70
+    XCHG DX, BX
+    MOV DL, [BX]
+    MOV DH, 00h
+    XCHG DX, BX
+    INC DX
+    RPrintDX 07h, 21
+
+    RET
+RenderRight ENDP
+
+; Eso fue, algo, muy interesante desarrollar asm 2026-05-24 10:25:09
+; No habrá pasado de 6h el desarrollo, creo, algo que ayudó bastante fue el libro de asm que me hice 2026-05-24 10:26:07
+
 CodeSg ENDS
 
 END Start
