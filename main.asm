@@ -11,7 +11,10 @@ DataSg SEGMENT PARA PUBLIC 'DATA'
     ArrayInput InputBuffer 5 DUP(<>) ; Un Array 2026-05-23 17:08:58
     StrLabel DB 10,10,"String $" ; Una label para los strings a inputear 2026-05-23 17:25:53
     StrLable DB " : $"; Al proposito hago las cosas confusas yo 2026-05-23 17:26:27
-    StrLiableGui DB 0B3h,"  F7: Align left   ",0B3h," F8: Align center  ",0B3h,"  F9: Align right  ",0B3h,"  F10: Exit       ",0B3h,"$"
+    StrOption1 DB "  F7: Align left   $"
+    StrOption2 DB " F8: Align center  $"
+    StrOption3 DB "  F9: Align right  $"
+    StrOption4 DB "    F10: Exit     $" ; Cambios, muchos cambios 2026-05-23 20:02:37
 DataSg ENDS
 
 ; Deberia hacerlo extra complicado y capturar input por input :) creo que mucho seria eso ya 2026-05-23 16:14:10
@@ -37,8 +40,59 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
     PCLoop:
         INT 10h
     Loop PCLoop
-
     ENDM
+
+    ; Me seria util un print, pero formatted 2026-05-23 20:03:08
+    Printf MACRO str, col, x, y
+        PUSH AX ; Guardamos todos los registros, esta va a ser una operación bastante larga 2026-05-23 20:10:41
+        PUSH BX
+        PUSH CX
+        PUSH DX 
+        PUSHF ; Si sirvió el stack :o 2026-05-23 20:08:37
+
+        MOV AH, 03h 
+        MOV BH, 00h
+        INT 10h ; Recogemos la ubicacion del cursor 2026-05-23 20:10:15
+        PUSH DX ; Guardamos la ubicacion del cursor 2026-05-23 20:10:16
+
+        MOV AH, 02h
+        MOV BH, 00h
+        MOV DH, y
+        MOV DL, x
+        INT 10h ; Movemos el cursor 2026-05-23 20:16:34
+
+        MOV AH, 09h
+        MOV AL, 20h
+        MOV BH, 00h
+        MOV BL, col
+        MOV CX, 1
+        INT 10h ; Aplicamos el atributo de color a utilizar 2026-05-23 20:18:23
+
+        MOV AH, 09h
+        LEA DX, str
+        INT 21h ; Imprimimos el str dado 2026-05-23 20:18:28
+
+        MOV AH, 08h
+        MOV BH, 00h
+        INT 10h
+
+        MOV AH, 09h
+        MOV BH, 00h
+        MOV BL, 07h
+        MOV CX, 1
+        INT 10h ; Reiniciamos color 2026-05-23 21:10:24
+
+        POP DX 
+        MOV AH, 02h
+        MOV BH, 00h
+        INT 10h ; Restauramos cursor 2026-05-23 21:10:50
+
+        POPF
+        POP DX
+        POP CX
+        POP BX
+        POP AX
+    ENDM ; Un printf, interesante. Aunque no funciona nada como el printf de C 2026-05-23 21:11:56
 
     Start: ; Parece un entry point, no? 2026-05-23 16:03:06
 
@@ -171,11 +225,29 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
     MOV AL, 0B4h
     INT 10h
 
+    MOV AL, 0B3h
+    INT 10h
 
+    PrintChar 020h 19
 
-    MOV AH, 09h
-    LEA DX, StrLiableGui
-    INT 21h
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 19
+
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 19
+    
+    MOV AL, 0B3h
+    INT 10h
+
+    PrintChar 020h 18
+
+    MOV AL, 0B3h
+    INT 10h
+
 
     MOV AH, 0Eh 
 
@@ -202,6 +274,8 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
     MOV AL, 0D9h
     INT 10h
 
+; Que hace esto? No pregunten, no se 2026-05-23 18:47:21
+; Imprime el cuadrito re bacano que sirve de gui 2026-05-23 19:56:38
 
     MOV AH, 4Ch ; Salimos del proceso, no queremos un loop eterno que crashee MS-DOS 2026-05-23 16:10:14
     MOV AL, 00h ; 0 porque 0 errores 😎 2026-05-23 16:10:12

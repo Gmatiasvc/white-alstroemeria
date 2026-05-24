@@ -21,5 +21,19 @@ String 5: ----------------------------------------------------------------------
 │str4                                                                          │
 │str5                                                                          │
 ├───────────────────┬───────────────────┬───────────────────┬──────────────────┤
-│  F7: Align left   │ F8: Align center  │  F9: Align right  │  F10: Exit       │
+│  F7: Align left   │ F8: Align center  │  F9: Align right  │    F10: Exit     │
 └───────────────────┴───────────────────┴───────────────────┴──────────────────┘
+
+─	Horizontal Simple	0C4h	196
+│	Vertical Simple	    0B3h	179
+┌	Esquina Sup. Izq.	0DAh	218
+┐	Esquina Sup. Der.	0BFh	191
+└	Esquina Inf. Izq.	0C0h	192
+┘	Esquina Inf. Der.	0D9h	217
+═	Horizontal Doble	0CDh	205
+║	Vertical Doble	    0BAh	186
+█	Bloque Sólido	    0DBh    219
+├  <------------------> 0C3h
+┴  <------------------> 0C1h
+┤  <------------------> 0B4h
+┬  <------------------> 0C2h
