@@ -65,7 +65,7 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         MOV AL, 20h
         MOV BH, 00h
         MOV BL, col
-        MOV CX, 1
+        MOV CX, 17
         INT 10h ; Aplicamos el atributo de color a utilizar 2026-05-23 20:18:23
 
         MOV AH, 09h
@@ -93,6 +93,9 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         POP BX
         POP AX
     ENDM ; Un printf, interesante. Aunque no funciona nada como el printf de C 2026-05-23 21:11:56
+
+    
+
 
     Start: ; Parece un entry point, no? 2026-05-23 16:03:06
 
@@ -271,11 +274,26 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
 
     PrintChar 0C4h 18
 
+    MOV AH, 0Ah
     MOV AL, 0D9h
+    MOV BH, 00h
+    MOV CX, 0001h
     INT 10h
-
 ; Que hace esto? No pregunten, no se 2026-05-23 18:47:21
 ; Imprime el cuadrito re bacano que sirve de gui 2026-05-23 19:56:38
+
+    MOV AH, 01h
+    MOV CH, 10h
+    INT 10h
+    
+    Printf StrOption1, 09h, 1, 23
+    Printf StrOption2, 0Ah, 21, 23
+    Printf StrOption3, 0Eh, 41, 23
+    Printf StrOption4, 0Ch, 61, 23 ; Colorcitos 2026-05-23 21:46:50
+
+    MOV AH, 00h    ; Función: Leer pulsación de tecla
+    INT 16h
+
 
     MOV AH, 4Ch ; Salimos del proceso, no queremos un loop eterno que crashee MS-DOS 2026-05-23 16:10:14
     MOV AL, 00h ; 0 porque 0 errores 😎 2026-05-23 16:10:12
