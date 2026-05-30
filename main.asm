@@ -11,7 +11,7 @@ InputBuffer ENDS
 
 DataSg SEGMENT PARA PUBLIC 'DATA'
     StrTitle DB "White Astroemeria Text Aligner [v1.4] By: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
-    StrInstrucction DB "You will enter a maximum of 67 characters, otherwise things break",10,"$" ; Creo que muy poco :c 2026-05-23 16:13:00
+    StrInstrucction DB "You will enter some characters then the program will align them",10,"$" ; Cambio de instruccion, esta creo que hace mas sentido 2026-05-30 11:37:43
     ArrayInput InputBuffer 5 DUP(<>) ; Un Array 2026-05-23 17:08:58
     StrLabel DB 10,10,"String $" ; Una label para los strings a inputear 2026-05-23 17:25:53
     StrLable DB " : $"; Al proposito hago las cosas confusas yo 2026-05-23 17:26:27
