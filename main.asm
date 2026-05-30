@@ -1,12 +1,16 @@
+; Generalizamos porque esta bien generalizar 2026-05-29 21:51:58
+CNSTSIZE EQU 40
+
+
 ; We STRUCing 2026-05-23 16:38:46
 InputBuffer STRUC 
-    MaxLen DB 68
+    MaxLen DB CNSTSIZE-3
     Len DB 0
-    ArrayChar DB 69 DUP('$') 
+    ArrayChar DB CNSTSIZE-2 DUP('$') 
 InputBuffer ENDS
 
 DataSg SEGMENT PARA PUBLIC 'DATA'
-    StrTitle DB "White Astroemeria Text Aligner [v1.3] By: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
+    StrTitle DB "White Astroemeria Text Aligner [v1.4] By: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
     StrInstrucction DB "You will enter a maximum of 67 characters, otherwise things break",10,"$" ; Creo que muy poco :c 2026-05-23 16:13:00
     ArrayInput InputBuffer 5 DUP(<>) ; Un Array 2026-05-23 17:08:58
     StrLabel DB 10,10,"String $" ; Una label para los strings a inputear 2026-05-23 17:25:53
@@ -254,7 +258,7 @@ CodeSg SEGMENT PARA PUBLIC 'CODE'
         MOV DX, BX
         INT 21h ; Usamos buffered input para captar datos de stdin 2026-05-23 17:37:39
 
-        ADD BX, 71 ; Cositas de arrays 2026-05-23 17:37:57
+        ADD BX, CNSTSIZE ; Cositas de arrays 2026-05-23 17:37:57
         ; Sabias que en c array[12] y 12[array] hacen exactamente lo mismo? 2026-05-23 17:39:01
     Loop LeLoop
 
@@ -478,16 +482,16 @@ RenderLeft PROC NEAR
     ADD DX, 2
     MOV BX, 78
     RPrintDX 07h, 17 ; Un poco de fuerza bruta 2026-05-24 09:42:13
-    ADD DX, 71
+    ADD DX, CNSTSIZE
     MOV BX, 78
     RPrintDX 07h, 18 
-    ADD DX, 71
+    ADD DX, CNSTSIZE
     MOV BX, 78
     RPrintDX 07h, 19 
-    ADD DX, 71
+    ADD DX, CNSTSIZE
     MOV BX, 78
     RPrintDX 07h, 20
-    ADD DX, 71
+    ADD DX, CNSTSIZE
     MOV BX, 78
     RPrintDX 07h, 21 
     RET
@@ -507,7 +511,7 @@ RenderCenter PROC NEAR
     ADD DX, 2
     CPrintDX 07h, 17
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -515,7 +519,7 @@ RenderCenter PROC NEAR
     INC DX
     CPrintDX 07h, 18
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -523,7 +527,7 @@ RenderCenter PROC NEAR
     INC DX
     CPrintDX 07h, 19
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -531,7 +535,7 @@ RenderCenter PROC NEAR
     INC DX
     CPrintDX 07h, 20
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -542,9 +546,7 @@ RenderCenter PROC NEAR
     RET
 RenderCenter ENDP
 
-
 RenderRight PROC NEAR
-
 
     LEA DX, StrOpt3Title
     MOV BX, 16
@@ -557,7 +559,7 @@ RenderRight PROC NEAR
     ADD DX, 2
     RPrintDX 07h, 17
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -565,7 +567,7 @@ RenderRight PROC NEAR
     INC DX
     RPrintDX 07h, 18
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -573,7 +575,7 @@ RenderRight PROC NEAR
     INC DX
     RPrintDX 07h, 19
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -581,7 +583,7 @@ RenderRight PROC NEAR
     INC DX
     RPrintDX 07h, 20
 
-    ADD DX, 70
+    ADD DX, CNSTSIZE-1
     XCHG DX, BX
     MOV DL, [BX]
     MOV DH, 00h
@@ -591,10 +593,8 @@ RenderRight PROC NEAR
 
     RET
 RenderRight ENDP
-
 ; Eso fue, algo, muy interesante desarrollar asm 2026-05-24 10:25:09
 ; No habrá pasado de 6h el desarrollo, creo, algo que ayudó bastante fue el libro de asm que me hice 2026-05-24 10:26:07
-
 CodeSg ENDS
 
 END Start

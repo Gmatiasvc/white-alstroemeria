@@ -1,15 +1,21 @@
 ; Compactaremso nuestra Aplicacion 2026-05-28 22:04:10
 ; Muy largo 800 lineas, y hay como 4 funciones print 💀 2026-05-28 22:04:42
 
+; Al parecer el tamaño del str era 36 max 2026-05-29 21:38:29
+
+; Generalizamos porque esta bien generalizar 2026-05-29 21:51:58
+CNSTSIZE EQU 40
+
 ; We STRUCing 2026-05-23 16:38:46
+
 InputBuffer STRUC 
-    MaxLen DB 68
+    MaxLen DB CNSTSIZE-3
     Len DB 0
-    ArrayChar DB 69 DUP('$') 
+    ArrayChar DB CNSTSIZE-2 DUP('$') 
 InputBuffer ENDS
 
 DataSg SEGMENT PARA PUBLIC 'DATA'
-    StrTitle DB "White Astroemeria Text Aligner [v2.0] By: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
+    StrTitle DB "White Astroemeria Text Aligner [v2.1] By: Gerardo Venegas",10,"$" ; Uyyy un titulo 2026-05-23 13:29:28
     StrInstrucction DB "You will enter a maximum of 67 characters, otherwise things break",10,"$" ; Creo que muy poco :c 2026-05-23 16:13:00
     ArrayInput InputBuffer 5 DUP(<>) ; Un Array 2026-05-23 17:08:58
     StrLabel DB 10,10,"String $" ; Una label para los strings a inputear 2026-05-23 17:25:53
@@ -177,7 +183,7 @@ ENDM
         MOV DX, BX
         INT 21h ; Usamos buffered input para captar datos de stdin 2026-05-23 17:37:39
 
-        ADD BX, 71 ; Cositas de arrays 2026-05-23 17:37:57
+        ADD BX, CNSTSIZE ; Cositas de arrays 2026-05-23 17:37:57
         ; Sabias que en c array[12] y 12[array] hacen exactamente lo mismo? 2026-05-23 17:39:01
     Loop LeLoop
 
@@ -373,8 +379,6 @@ ENDM
     MOV AL, 00h ; 0 porque 0 errores 😎 2026-05-23 16:10:12
     INT 21h
 
-
-
 ;Cambio de planes, usamos procs
 RenderLeft PROC NEAR
 
@@ -388,31 +392,30 @@ RenderLeft PROC NEAR
     LEA BX, ArrayInput
     ADD BX, 2
 	Uprint 0
-    ADD BX, 71
+    ADD BX, CNSTSIZE
 
 	CMov 1, 18
 	CBrush 0Fh, 78
 	Uprint 0
-    ADD BX, 71
+    ADD BX, CNSTSIZE
 
 	CMov 1, 19
 	CBrush 0Fh, 78
 	Uprint 0
-    ADD BX, 71
+    ADD BX, CNSTSIZE
 
 	CMov 1, 20
 	CBrush 0Fh, 78
 	Uprint 0
-    ADD BX, 71
+    ADD BX, CNSTSIZE
 
 	CMov 1, 21
 	CBrush 0Fh, 78
 	Uprint 0
-    ADD BX, 71
+    ADD BX, CNSTSIZE
 
 	RET
 RenderLeft ENDP
-
 
 RenderCenter PROC NEAR
 	CMov 1, 15
@@ -427,35 +430,34 @@ RenderCenter PROC NEAR
     ADD BX, 2
 	MOV AL, [BX-1]
 	UPrint 1
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 18
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 1
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 19
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 1
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 20
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 1
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 21
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 1
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
     RET
 RenderCenter ENDP
-
 
 RenderRight PROC NEAR
 	CMov 1, 15
@@ -470,31 +472,31 @@ RenderRight PROC NEAR
     ADD BX, 2
 	MOV AL, [BX-1]
 	UPrint 2
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 18
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 2
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 19
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 2
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 20
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 2
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
 	CMov 1, 21
 	CBrush 0Fh, 78
 	MOV AL, [BX-1]
 	UPrint 2
-	ADD BX, 71
+	ADD BX, CNSTSIZE
 
     RET
 
@@ -503,8 +505,6 @@ RenderRight ENDP
 
 ; Eso fue, algo, muy interesante desarrollar asm 2026-05-24 10:25:09
 ; No habrá pasado de 6h el desarrollo, creo, algo que ayudó bastante fue el libro de asm que me hice 2026-05-24 10:26:07
-
-
 ; Abusamos macros y reducimos hasta 512 lineas 2026-05-28 23:40:47
 
 CodeSg ENDS
