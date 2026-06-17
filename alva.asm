@@ -1,11 +1,13 @@
 DATOS SEGMENT
-    MSG_TITULO DB "Nasheeeeee Text Aligner By: Kevin Alva", 13, 10
-               DB "You will enter some characters then the program will align them", 13, 10, 10, "$"
+    ; TEXTOS ESTÁTICOS
+    MSG_TITULO DB "Proyecto grupal Text Aligner", 13, 10
+               DB "Ingresa 5 cadenas y elige su alineacion con F7, F8 o F9", 13, 10, 10, "$"
     
     MSG_STR    DB "String $"
     MSG_PUNTO  DB " : $"
     STR_NUM    DB '1'
 
+    ; TEXTOS CON COLORES DINÁMICOS
     TXT_TIT_I DB "Left alignment$"
     TXT_TIT_C DB "Center alignment$"
     TXT_TIT_D DB "Right alignment$"
@@ -15,6 +17,7 @@ DATOS SEGMENT
     TXT_F9    DB " F9: Align right $"
     TXT_F10   DB " F10: Exit $"
 
+    ; MEMORIA RAM 
     CADENAS   DB 5 DUP(37 DUP('$')) ; Matriz 5x37 (36 chars + $)
     LONG      DB 5 DUP(0)           ; Longitudes exactas
     ESTADO    DB 0FFh               ; FF=Esperando, 0=Izq, 1=Cen, 2=Der
@@ -34,10 +37,12 @@ INICIO:
     MOV AX, 0003h       ; Limpiar pantalla
     INT 10h
 
+    ; Mostrar Título Superior
     LEA DX, MSG_TITULO
     MOV AH, 09h
     INT 21h
 
+    ; CAPTURA DE DATOS (BUCLES ANIDADOS)
     MOV CX, 5           ; Bucle Mayor
     MOV BX, 0           ; Offset Matriz Cadenas
     MOV SI, 0           ; Offset Arreglo Longitudes
@@ -74,6 +79,7 @@ B_MENOR:
     JMP B_MENOR
 
 DEL_EXCESO:
+    ; Borrado de la letra excedente que la interrupción 01h dibuja por defecto
     MOV AH, 02h
     MOV DL, 8
     INT 21h
@@ -84,8 +90,8 @@ DEL_EXCESO:
     JMP B_MENOR
 
 BORRAR:
-    CMP DI, 0           
-    JE B_MENOR
+    CMP DI, 0 
+    JE REBOTE_BORRAR          
     DEC DI
     MOV CADENAS[BX+DI], '$' 
     
@@ -93,6 +99,12 @@ BORRAR:
     MOV DL, 32
     INT 21h
     MOV DL, 8
+    INT 21h
+    JMP B_MENOR
+
+REBOTE_BORRAR:
+    MOV AH, 02h
+    MOV DL, 32
     INT 21h
     JMP B_MENOR
 
@@ -108,11 +120,13 @@ FIN_LIN:
     INT 21h
     LOOP B_MAYOR
 
+    ; OCULTAR EL CURSOR
     MOV AH, 01h         ; Función BIOS: Set Cursor Shape
     MOV CH, 20h         ; Scanline 20h vuelve invisible al cursor
     MOV CL, 00h
     INT 10h
 
+    ; DIBUJO DE LA TABLA INFERIOR
     MOV DH, 12          ; Línea superior
     CALL DIBUJAR_LINEA_H
     
@@ -122,6 +136,7 @@ FIN_LIN:
     MOV DH, 22          ; Línea final de tabla
     CALL DIBUJAR_LINEA_H
 
+    ; PINTAR EL MENÚ 
     LEA SI, TXT_F7
     MOV DH, 21          
     MOV DL, 2           
@@ -155,6 +170,7 @@ FIN_LIN:
     MOV BL, 0Ch         ; Rojo
     CALL PRINT_COLOR
 
+    ; BUCLE DE ESTADO (F7 - F10)
 ESPERA:
     MOV AH, 00h         
     INT 16h
@@ -184,21 +200,26 @@ SET_DER:
     CALL IMPRIMIR
     JMP ESPERA
 
+    ; ATERRIZAJE AL SALIR
 SALIR: 
+    ; 1. Bajar el cursor hasta el final de la pantalla (Fila 23)
     MOV AH, 02h
     MOV BH, 0
     MOV DH, 23
     MOV DL, 0
     INT 10h
 
+    ; 2. Devolverle al cursor su forma visible normal (Subrayado)
     MOV AH, 01h
     MOV CH, 06h
     MOV CL, 07h
     INT 10h
 
+    ; 3. Salida Limpia a DOS
     MOV AX, 4C00h 
     INT 21h
 
+    ; PROCEDIMIENTO DE ALINEACIÓN
 IMPRIMIR PROC
     CALL LIMPIAR_INTERIOR 
 
@@ -266,6 +287,7 @@ F_CUR:
     RET
 IMPRIMIR ENDP
 
+    ; SUB-RUTINAS DE DIBUJO Y OPTIMIZACIÓN
 DIBUJAR_LINEA_H PROC
     PUSH CX
     PUSH DX
